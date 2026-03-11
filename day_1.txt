@@ -1,0 +1,9 @@
+start from zero - 3 steps 
+# intro 
+# communication using markdown 
+# github pages 
+## step 1 
+repo 
+branch 
+pr
+commit 
