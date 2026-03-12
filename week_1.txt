@@ -1,6 +1,0 @@
-5 module in 5days 
-# intro to git 
-# review pull request 
-# resolve merge conflict 
-# code with codespaces 
-# intro to repo management 
