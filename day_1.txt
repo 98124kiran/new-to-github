@@ -3,7 +3,7 @@ start from zero - 3 steps
 # communication using markdown 
 # github pages 
 ## step 1 
-repo 
-branch 
-pr
-commit 
+repo -contain file and folder . keep track of version 
+branch - main is definitive branch . branch is parallel version of your repo .  create branch means copy your main branch / repo 
+commit - set of changes made in your file or folder 
+pull request 
