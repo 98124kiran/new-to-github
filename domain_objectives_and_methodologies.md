@@ -1422,5 +1422,616 @@ Chapter 7: Conclusion
 
 ---
 
+## 📚 BACKGROUND READING RESOURCES (2–3 Hours Total)
+
+These are the exact resources you need to read before coding. Each link is free to access.
+You do NOT need to read all of them deeply — skim headings, read abstract + conclusion, look at figures.
+
+### Tier 1 — Must Read (≈ 90 minutes)
+
+#### 1. What is V2X and Edge Computing for Autonomous Vehicles? (30 min)
+> **Read this first — plain English introduction, no math**
+- **Wikipedia: V2X (Vehicle-to-Everything)**
+  https://en.wikipedia.org/wiki/Vehicle-to-everything
+  *What to read*: Overview, V2I section, latency requirements table
+
+- **Wikipedia: Multi-access Edge Computing (MEC)**
+  https://en.wikipedia.org/wiki/Mobile_edge_computing
+  *What to read*: Introduction, Architecture, Use cases (AV section)
+
+- **ETSI MEC Overview (1-page summary by the standards body)**
+  https://www.etsi.org/technologies/multi-access-edge-computing
+  *What to read*: The "What is MEC?" summary paragraph only
+
+#### 2. Core Research Paper — Task Offloading in AV Edge Networks (30 min)
+> **This is the closest paper to your thesis topic. Read abstract + section III (system model) + results**
+- **"Deep Reinforcement Learning for Task Offloading in Mobile Edge Computing"**
+  https://arxiv.org/abs/1905.11867
+  *What to read*: Abstract, System Model (Section II), reward design (Section III), results table
+  *Why it matters*: This is the single-agent DQN baseline you will beat with MAPPO
+
+#### 3. MARL for Edge Computing Survey (30 min)
+> **Skim to understand how other researchers set up the MARL problem**
+- **"Multi-Agent Reinforcement Learning for Edge Computing: A Survey" (IEEE Access 2022)**
+  https://arxiv.org/abs/2205.05038
+  *What to read*: Abstract + Table 1 (comparison of existing work) + Section 4.1 (system models)
+  *Why it matters*: Shows you what state/action spaces other papers use — validates your design
+
+---
+
+### Tier 2 — Recommended (≈ 60 minutes)
+
+#### 4. PPO Algorithm — Original Paper (15 min skim)
+> **You are using PPO in your implementation — read this to understand it**
+- **"Proximal Policy Optimization Algorithms" — Schulman et al. (OpenAI, 2017)**
+  https://arxiv.org/abs/1707.06347
+  *What to read*: Abstract + Section 3 (algorithm) + Figure 2 only
+  *Why it matters*: PPO is your core RL algorithm — 1 paragraph in your thesis will cite this
+
+#### 5. MAPPO — Multi-Agent PPO (15 min skim)
+> **Your MARL method — the key algorithm that differentiates your thesis**
+- **"The Surprising Effectiveness of MAPPO in Cooperative Multi-Agent Games" (2021)**
+  https://arxiv.org/abs/2103.01955
+  *What to read*: Abstract + Section 2.1 (MAPPO description) + Table 1 (results)
+  *Why it matters*: This is the MARL algorithm your Chapter 4 is built on — cite it
+
+#### 6. Stable-Baselines3 Documentation (15 min)
+> **The Python library you will use for training — read the quick-start**
+- **Stable-Baselines3 Official Docs**
+  https://stable-baselines3.readthedocs.io/en/master/
+  *What to read*: "Getting Started" guide + PPO API page
+  *Why it matters*: You will call `PPO("MlpPolicy", env, ...)` — know what the parameters mean
+
+#### 7. Gymnasium (OpenAI Gym) Custom Environment Guide (15 min)
+> **How to build the `AutonomousVehicleEdgeEnv` class correctly**
+- **Gymnasium: Creating Custom Environments**
+  https://gymnasium.farama.org/tutorials/gymnasium_basics/environment_creation/
+  *What to read*: Full tutorial (it is short — 5 minutes to implement, 10 minutes to read)
+  *Why it matters*: Your entire simulation is built on this — understand `reset()`, `step()`, `observation_space`
+
+---
+
+### Tier 3 — Optional / Reference Only (bookmark, don't read now)
+
+| Resource | Link | When to Use |
+|---|---|---|
+| **SUMO Traffic Simulator Docs** | https://sumo.dlr.de/docs/ | If you add realistic vehicle movement (Week 3+) |
+| **VeReMi Dataset (V2V message traces)** | https://veremi-dataset.github.io/ | If you want real task arrival patterns |
+| **PyTorch Tutorials (if needed)** | https://pytorch.org/tutorials/ | If Stable-Baselines3 is not enough |
+| **RLlib Multi-Agent Docs** | https://docs.ray.io/en/latest/rllib/index.html | Alternative to SB3 for true multi-agent training |
+| **"Multi-Access Edge Computing: A Survey" (IEEE, 2017)** | https://arxiv.org/abs/1709.01656 | Deep dive into MEC theory for literature review |
+| **ETSI MEC standards (technical specs)** | https://www.etsi.org/standards#page=1&search=MEC | Chapter 2 literature review citations |
+
+---
+
+## 🗓️ DETAILED 4-WEEK PLAN: From Scratch to Thesis-Ready
+
+This plan assumes you work **3–4 hours per day**. Each day has a clear deliverable.
+**Total estimated hours: 60–80 hours** across 4 weeks.
+
+---
+
+### 📅 WEEK 1 — Foundation: Background Reading + Environment Setup
+
+**Goal by end of Week 1:** A working simulation environment + understand the problem deeply enough to explain it to your supervisor.
+
+---
+
+#### Day 1 (Monday) — Background Reading Session
+**Time required: 3 hours**
+```
+Hour 1: V2X fundamentals
+  ✅ Read Wikipedia V2X article (focus on V2I section)
+     → https://en.wikipedia.org/wiki/Vehicle-to-everything
+  ✅ Read Wikipedia MEC article
+     → https://en.wikipedia.org/wiki/Mobile_edge_computing
+  ✅ Draw a simple diagram: vehicle → RSU → cloud (on paper)
+  ✅ Write down: What are 3 tasks an AV generates? What is their deadline?
+
+Hour 2: Core paper reading
+  ✅ Open: https://arxiv.org/abs/1905.11867
+  ✅ Read: Abstract (5 min) + System Model Figure (5 min) + Results Table (5 min)
+  ✅ Answer: What state did they use? What action? What reward?
+  ✅ Write 3 bullet points: "My thesis will improve on this paper by..."
+
+Hour 3: MARL paper skim
+  ✅ Open: https://arxiv.org/abs/2205.05038
+  ✅ Jump to Table 1 — look at how other papers define agents, state, action
+  ✅ Open: https://arxiv.org/abs/2103.01955 (MAPPO paper)
+  ✅ Read abstract + Section 2.1 (2 pages only)
+  ✅ Write: "My agents = vehicles. My MARL method = MAPPO. Because..."
+```
+**Day 1 Deliverable:** 1-page handwritten notes with your problem formulation.
+
+---
+
+#### Day 2 (Tuesday) — Environment Setup
+**Time required: 3–4 hours**
+```
+Hour 1: Python environment setup
+  ✅ Install Python 3.10+ (if not already installed)
+     → https://www.python.org/downloads/
+  ✅ Create virtual environment:
+     python -m venv av_thesis_env
+     source av_thesis_env/bin/activate     # Linux/Mac
+     av_thesis_env\Scripts\activate        # Windows
+  ✅ Install dependencies:
+     pip install gymnasium stable-baselines3 numpy matplotlib pandas torch
+
+Hour 2: Read Gymnasium tutorial
+  ✅ Open: https://gymnasium.farama.org/tutorials/gymnasium_basics/environment_creation/
+  ✅ Code the example from the tutorial (not your AV env yet — just get familiar)
+  ✅ Run it: python my_first_env.py
+
+Hour 3–4: Build AutonomousVehicleEdgeEnv
+  ✅ Copy the code skeleton from this document (Section: "Quick-Start Code Skeleton")
+  ✅ Save as: av_edge_env.py
+  ✅ Run: python av_edge_env.py
+  ✅ Verify: environment resets, steps without error, observations have correct shape
+  ✅ Print 5 random actions to confirm the action/observation cycle works
+```
+**Day 2 Deliverable:** `av_edge_env.py` runs without errors. You can call `env.reset()` and `env.step(action)`.
+
+---
+
+#### Day 3 (Wednesday) — First Training Run: DQN Baseline
+**Time required: 3 hours**
+```
+Hour 1: Train a random agent (sanity check)
+  ✅ Write: av_random_baseline.py
+     obs, _ = env.reset()
+     for _ in range(300):
+         action = env.action_space.sample()    # random
+         obs, reward, done, _, info = env.step(action)
+         print(info)
+         if done: obs, _ = env.reset()
+  ✅ Run it. Record average deadline miss rate.
+  ✅ This is your "Random" baseline — save the number.
+
+Hour 2: Train DQN (simplest RL agent)
+  ✅ Write: av_dqn_train.py
+     from stable_baselines3 import DQN
+     model = DQN("MlpPolicy", env, verbose=1, learning_rate=1e-3, buffer_size=10000)
+     model.learn(total_timesteps=100_000)
+     model.save("av_dqn_baseline")
+  ✅ Run training (takes ~5–10 minutes on a laptop)
+  ✅ Watch the reward increase in the output
+
+Hour 3: Evaluate DQN
+  ✅ Write: av_dqn_eval.py
+     model = DQN.load("av_dqn_baseline")
+     obs, _ = env.reset()
+     met, total = 0, 0
+     for _ in range(100):
+         action, _ = model.predict(obs, deterministic=True)
+         obs, r, done, _, info = env.step(action)
+         met += info["met_deadline"]
+         total += 1
+         if done: obs, _ = env.reset()
+     print(f"DQN Deadline Met: {met/total*100:.1f}%")
+  ✅ Record: DQN deadline met rate. Compare to Random.
+  ✅ Expected result: DQN should beat random by 10–25%
+```
+**Day 3 Deliverable:** First result table row: `Random: XX% | DQN: XX%` deadline met rate.
+
+---
+
+#### Day 4 (Thursday) — PPO Training + Comparison
+**Time required: 3 hours**
+```
+Hour 1: Train PPO (your main single-agent method)
+  ✅ Write: av_ppo_train.py
+     from stable_baselines3 import PPO
+     model = PPO("MlpPolicy", env, verbose=1, learning_rate=3e-4,
+                 n_steps=1024, batch_size=64, n_epochs=10)
+     model.learn(total_timesteps=200_000)
+     model.save("av_ppo_single_agent")
+  ✅ Run training (takes ~10–20 minutes on a laptop)
+
+Hour 2: Evaluate PPO + compare with DQN
+  ✅ Run same evaluation loop for PPO
+  ✅ Record: PPO deadline met rate
+  ✅ Compare: Random vs DQN vs PPO
+  ✅ Expected: PPO > DQN > Random (if not, check reward function sign)
+
+Hour 3: Plot learning curve
+  ✅ Add to training script:
+     from stable_baselines3.common.callbacks import EvalCallback
+     from stable_baselines3.common.monitor import Monitor
+     import matplotlib.pyplot as plt
+  ✅ Plot reward over training steps (this becomes Figure 1 in your thesis)
+  ✅ Save plot as: results/ppo_learning_curve.png
+```
+**Day 4 Deliverable:** `results/` folder with first comparison table + learning curve plot.
+
+---
+
+#### Day 5 (Friday) — Add Disruption: RSU Failure Scenario
+**Time required: 2–3 hours**
+```
+Hour 1: Add RSU failure to the environment
+  ✅ Open av_edge_env.py
+  ✅ Add to reset(): self.rsu_failure_step = np.random.randint(10, 25)
+  ✅ Add to step(): 
+     if self.tasks_done == self.rsu_failure_step:
+         self.rsu_loads[0] = 1.0    # RSU-1 goes offline (fully loaded)
+  ✅ Re-run random + DQN + PPO baselines on this harder environment
+  ✅ Record: how much does deadline miss rate go up when RSU fails?
+
+Hour 2–3: Retrain PPO on failure environment
+  ✅ Retrain model.learn(total_timesteps=200_000) with failure scenario active
+  ✅ Compare: PPO (no failure training) vs PPO (trained with failure)
+  ✅ Expected: PPO trained WITH failures learns to switch to RSU-2 automatically
+  ✅ This is Experiment 3 in your thesis: adaptive replanning under RSU failure
+```
+**Day 5 Deliverable:** Evidence that your RL agent adapts to RSU failure (core thesis contribution).
+
+---
+
+### 📅 WEEK 2 — Multi-Agent: MAPPO Fleet of Vehicles
+
+**Goal by end of Week 2:** A working 5-vehicle MARL system trained with MAPPO.
+
+---
+
+#### Day 6 (Monday) — Multi-Agent Environment Setup
+**Time required: 4 hours**
+```
+Hours 1–2: Understand MARL library options
+  ✅ Read RLlib MARL docs (30 min skim):
+     https://docs.ray.io/en/latest/rllib/rllib-env.html#multi-agent-envs
+  ✅ OR use the simpler approach: run N copies of env in parallel with shared reward
+  ✅ Recommended for students: Use PettingZoo-style wrapper (easier)
+     pip install pettingzoo
+
+Hours 3–4: Build multi-vehicle environment
+  ✅ Create: av_multi_agent_env.py
+  ✅ Wrap AutonomousVehicleEdgeEnv so N vehicles share the same RSU loads
+  ✅ Key change: RSU loads increase when any vehicle offloads to them
+     (vehicles compete for the same RSU resources — this is the core MARL interaction)
+  ✅ Start with N=3 vehicles, RSU capacity=1.0 shared
+  ✅ Test: run 3 random agents, confirm RSU loads increase when all 3 offload together
+```
+**Day 6 Deliverable:** `av_multi_agent_env.py` — 3 vehicles competing for shared RSUs.
+
+---
+
+#### Day 7 (Tuesday) — Train MAPPO (Core Thesis Algorithm)
+**Time required: 4 hours**
+```
+Hours 1–2: Train independent PPO per vehicle (simpler MARL baseline)
+  ✅ Train each vehicle with its own PPO model, sharing RSU state
+  ✅ This is "Independent PPO" — a common MARL baseline
+  ✅ Record: does load balancing emerge? (check if all 3 vehicles don't offload to RSU-1 simultaneously)
+
+Hours 3–4: Train MAPPO
+  ✅ Use RLlib MAPPO OR implement CTDE manually:
+     → Shared critic: takes concatenated state of all vehicles
+     → Individual actors: each vehicle has its own policy network
+  ✅ Alternative (simpler): use parameter sharing (all agents use same neural network weights)
+     from stable_baselines3 import PPO
+     # Train with shared policy — each vehicle observation is independent input
+     # This approximates MAPPO for a student implementation
+  ✅ Run 200,000 steps
+  ✅ Record: fleet average deadline met rate
+```
+**Day 7 Deliverable:** MAPPO (or shared-policy PPO) trained on 3-vehicle fleet.
+
+---
+
+#### Day 8 (Wednesday) — Scale Up: 5 Vehicles + Rush Hour Simulation
+**Time required: 3 hours**
+```
+Hours 1–2: Increase to 5 vehicles
+  ✅ Change n_vehicles = 5 in your multi-agent env
+  ✅ Retrain (takes longer — 30–40 min on laptop)
+  ✅ Record: does performance degrade as more vehicles compete for RSUs?
+
+Hour 3: Add rush hour traffic pattern
+  ✅ Add to environment: self.rush_hour = (20 <= self.tasks_done <= 40)
+  ✅ During rush hour: new_task_arrival_rate *= 2 (double the task generation rate)
+  ✅ Run both: PPO single-agent vs MAPPO fleet during rush hour
+  ✅ Record: which handles rush hour better?
+  ✅ Expected: MAPPO distributes load; single agent gets overwhelmed
+```
+**Day 8 Deliverable:** Experiment 4 results: Rush hour vs off-peak performance comparison.
+
+---
+
+#### Day 9 (Thursday) — Results Table + Visualizations
+**Time required: 3 hours**
+```
+Hours 1–2: Collect all results into a table
+  ✅ Create: results/experiment_results.csv
+  
+  Method              | Deadline Met% | Avg Latency(ms) | Energy | RSU Utilization Std
+  Random              |               |                 |        |
+  Always-Local        |               |                 |        |
+  Always-RSU          |               |                 |        |
+  Least-Loaded        |               |                 |        |
+  DQN (single agent)  |               |                 |        |
+  PPO (single agent)  |               |                 |        |
+  MAPPO (5 vehicles)  |               |                 |        |
+
+  ✅ Run each method for 1000 steps, compute averages
+  ✅ This is Table 1 in your thesis Chapter 5
+
+Hour 3: Generate plots
+  ✅ Plot 1: Learning curve (reward vs training steps) — ppo vs mappo
+  ✅ Plot 2: Bar chart — deadline met rate for all methods
+  ✅ Plot 3: Line chart — RSU utilization over time (rush hour visible as spike)
+  ✅ Save all to results/ folder
+```
+**Day 9 Deliverable:** `results/` folder with all plots + results CSV. Core of Chapter 5.
+
+---
+
+#### Day 10 (Friday) — Buffer Day + Review
+**Time required: 2 hours**
+```
+✅ Re-read your Day 1 notes
+✅ Check: does your MAPPO result beat all baselines?
+✅ If PPO beats MAPPO: increase n_vehicles (MARL benefit shows at higher contention)
+✅ If results look wrong: check reward function — energy coefficient might be too high
+✅ Commit all code to GitHub
+✅ Backup results folder
+```
+
+---
+
+### 📅 WEEK 3 — Experiments: Ablation Studies + Advanced Scenarios
+
+**Goal by end of Week 3:** All 5 experiments complete, ready to write.
+
+---
+
+#### Day 11 (Monday) — Experiment: Scalability Test
+**Time required: 3–4 hours**
+```
+✅ Run your MAPPO with: n_vehicles = 1, 5, 10, 20, 30
+✅ Record deadline met rate for each fleet size
+✅ Plot: x-axis = number of vehicles, y-axis = deadline met rate
+✅ Expected: MAPPO degrades gracefully; Always-RSU collapses when all offload simultaneously
+✅ This becomes Figure 3 in your thesis (scalability analysis)
+```
+
+---
+
+#### Day 12 (Tuesday) — Experiment: Sustainability Analysis
+**Time required: 3 hours**
+```
+✅ Add energy tracking to your eval loop:
+   total_vehicle_energy = sum(info["energy"] for all vehicles)
+   total_rsu_energy_proxy = sum(rsu_loads) * 0.1    # simple linear model
+✅ Run all methods, record energy
+✅ Calculate: how much energy does MAPPO save vs Always-Local?
+✅ This is your "Sustainable" contribution → maps directly to thesis title keyword
+```
+
+---
+
+#### Day 13 (Wednesday) — Experiment: RSU Failure Recovery
+**Time required: 3 hours**
+```
+✅ Simulate: at step 50, RSU-1 goes offline (load = 1.0, stays there)
+✅ Measure: how many steps until performance recovers to pre-failure level?
+✅ Compare: PPO (single agent) vs MAPPO fleet recovery speed
+✅ This is Experiment 3: Adaptive Replanning (core of "Replanning" in thesis title)
+✅ Plot: performance over time with failure event marked with vertical line
+```
+
+---
+
+#### Day 14 (Thursday) — Ablation Study
+**Time required: 3 hours**
+```
+✅ Remove components one by one to show each contributes:
+   Ablation A: Remove deadline penalty from reward → deadline met rate drops
+   Ablation B: Remove energy term from reward → energy increases
+   Ablation C: Single agent vs multi-agent → load balancing disappears
+   Ablation D: No curriculum learning vs curriculum → training stability
+✅ Record results for each ablation
+✅ This shows your design choices were intentional and correct
+```
+
+---
+
+#### Day 15 (Friday) — Buffer + Code Cleanup
+**Time required: 2 hours**
+```
+✅ Clean up all Python files (add comments, remove debug prints)
+✅ Create requirements.txt: pip freeze > requirements.txt
+✅ Write a README.md for your code repository
+✅ Organize: src/ (env code), experiments/ (training scripts), results/ (plots + CSV)
+✅ Commit to GitHub with clear commit messages
+```
+
+---
+
+### 📅 WEEK 4 — Writing: Thesis Draft
+
+**Goal by end of Week 4:** Full thesis draft (Chapter 1 + 3 + 5 completed, others outlined).
+
+---
+
+#### Day 16 (Monday) — Write Chapter 3: System Model
+**Time required: 4–5 hours**
+```
+✅ Section 3.1: Network model (copy your architecture diagram into LaTeX/Word)
+✅ Section 3.2: Task model (table of 5 task types, size, deadline, priority)
+✅ Section 3.3: Latency model (write the equations from your _compute_latency_energy function)
+✅ Section 3.4: Energy model (same)
+✅ Section 3.5: MARL formulation
+   - State space S = (write out the observation vector from your code)
+   - Action space A = {local, RSU-1, RSU-2, cloud}
+   - Reward function R = (write out your reward equation)
+   - Agent definition: each vehicle i ∈ {1,...,N} is an independent RL agent
+
+Tools:
+   LaTeX template: https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn
+   Free alternative: Google Docs with equation editor
+```
+**Day 16 Deliverable:** Chapter 3 first draft (3–5 pages).
+
+---
+
+#### Day 17 (Tuesday) — Write Chapter 5: Experiments
+**Time required: 4–5 hours**
+```
+✅ Section 5.1: Simulation setup
+   - Copy your environment parameters (n_vehicles=5, n_rsus=2, max_tasks=30)
+   - "We implemented a custom Gymnasium environment in Python 3.10"
+   - "Training used Stable-Baselines3 v2.x with PPO/MAPPO"
+
+✅ Section 5.2: Baselines (describe each heuristic in 1 sentence)
+
+✅ Section 5.3–5.7: One section per experiment
+   - For each: describe setup (2 sentences) + insert your plot/table + write 3 observation sentences
+   - "As shown in Figure X, MAPPO achieves Y% deadline compliance, outperforming the DQN baseline by Z%"
+
+✅ Insert all plots from your results/ folder
+✅ Insert results table (Table 1 from your CSV)
+```
+**Day 17 Deliverable:** Chapter 5 first draft (6–10 pages).
+
+---
+
+#### Day 18 (Wednesday) — Write Chapter 4: Proposed Method
+**Time required: 4 hours**
+```
+✅ Section 4.1: Agent design
+   - Copy your AutonomousVehicleEdgeEnv observation space description
+   - Explain: "Each vehicle maintains a local policy network π_θ: S → A"
+
+✅ Section 4.2: CTDE architecture
+   - Draw: centralized training box → N vehicle actors box
+   - Explain difference between training (central critic) and deployment (local only)
+
+✅ Section 4.3: Reward function
+   - Write mathematical equation for your reward
+   - Justify each coefficient (why α=0.3 for energy? experiment with ablation)
+
+✅ Section 4.4: Curriculum training
+   - Describe your 5-stage curriculum (from the earlier section of this document)
+```
+**Day 18 Deliverable:** Chapter 4 first draft (4–6 pages).
+
+---
+
+#### Day 19 (Thursday) — Write Chapter 1: Introduction
+**Time required: 3–4 hours**
+```
+✅ Paragraph 1: The problem (4–5 lines)
+   "Autonomous vehicles generate up to 4TB of sensor data per day [cite].
+    Onboard processing alone is insufficient for safety-critical real-time tasks [cite].
+    Mobile edge computing (MEC) offers low-latency compute at roadside infrastructure..."
+
+✅ Paragraph 2: The gap (3–4 lines)
+   "Existing offloading algorithms assume single-agent decision making [cite: arxiv 1905.11867].
+    They fail to account for multi-vehicle contention for shared RSU resources..."
+
+✅ Paragraph 3: Your contribution (4 bullet points)
+   1. A multi-agent simulation environment for V2X task offloading
+   2. MAPPO-based fleet coordination for adaptive RSU offloading
+   3. Demonstrated RSU failure recovery through learned replanning
+   4. Energy-efficient scheduling that reduces fleet + RSU energy by X%
+
+✅ Paragraph 4: Paper structure (1 sentence per chapter)
+
+Citations to use:
+   [1] DRL offloading: https://arxiv.org/abs/1905.11867
+   [2] MAPPO: https://arxiv.org/abs/2103.01955
+   [3] MEC survey: https://arxiv.org/abs/1709.01656
+   [4] MARL for edge: https://arxiv.org/abs/2205.05038
+```
+**Day 19 Deliverable:** Chapter 1 complete (2–3 pages).
+
+---
+
+#### Day 20 (Friday) — Write Abstract + Conclusion + Polish
+**Time required: 3 hours**
+```
+Hour 1: Write Abstract (250 words)
+  Structure: Problem (2 sentences) + Gap (1 sentence) + Method (2 sentences) +
+             Key Results (2 sentences) + Conclusion (1 sentence)
+  Tip: Write abstract LAST so all numbers are correct
+
+Hour 2: Write Chapter 7: Conclusion
+  ✅ Section 7.1: Summary of contributions (4 bullet points from Chapter 1 + results)
+  ✅ Section 7.2: Limitations (2–3 bullets: simulation-only, simplified channel model, etc.)
+  ✅ Section 7.3: Future work
+    - V2V cooperative offloading (Objective 7 from this document)
+    - GNN-MARL for scalable road network topology
+    - Real 5G testbed deployment
+
+Hour 3: Final polish
+  ✅ Add references section (use Google Scholar to get BibTeX for each paper)
+  ✅ Check: all figures labeled, all tables numbered, all equations numbered
+  ✅ Read abstract + conclusion together — do they tell the same story?
+  ✅ Submit draft to supervisor
+```
+**Day 20 Deliverable:** 🎓 Complete thesis first draft ready for supervisor feedback.
+
+---
+
+## 📋 COMPLETE RESOURCE CHECKLIST
+
+### Papers to Cite (All Free)
+| # | Paper | Link | Chapter Used In |
+|---|---|---|---|
+| 1 | DRL for Task Offloading (MEC) | https://arxiv.org/abs/1905.11867 | Ch 1, 2, 5 (baseline) |
+| 2 | MAPPO Paper | https://arxiv.org/abs/2103.01955 | Ch 4 (method) |
+| 3 | MARL for Edge Computing Survey | https://arxiv.org/abs/2205.05038 | Ch 2 (lit review) |
+| 4 | MEC Survey (IEEE 2017) | https://arxiv.org/abs/1709.01656 | Ch 2 (background) |
+| 5 | PPO Algorithm (OpenAI) | https://arxiv.org/abs/1707.06347 | Ch 4 (method) |
+| 6 | DQN Paper (DeepMind) | https://arxiv.org/abs/1312.5602 | Ch 2 (baseline) |
+| 7 | CTDE for MARL (MADDPG) | https://arxiv.org/abs/1706.02275 | Ch 4 (architecture) |
+
+### Tools + Docs
+| Tool | Link | Purpose |
+|---|---|---|
+| Stable-Baselines3 | https://stable-baselines3.readthedocs.io | PPO/DQN training |
+| Gymnasium | https://gymnasium.farama.org | Custom env base class |
+| Matplotlib | https://matplotlib.org/stable/gallery | Plotting results |
+| Overleaf (LaTeX) | https://www.overleaf.com | Thesis writing (free tier) |
+| Google Scholar | https://scholar.google.com | Get BibTeX citations |
+| arXiv | https://arxiv.org | Find papers (all free) |
+
+---
+
+## 📦 Final Folder Structure (After 4 Weeks)
+```
+av_v2x_thesis/
+├── src/
+│   ├── av_edge_env.py            # Single-vehicle Gymnasium environment
+│   └── av_multi_agent_env.py     # Multi-vehicle MARL environment
+├── experiments/
+│   ├── av_random_baseline.py
+│   ├── av_dqn_train.py
+│   ├── av_ppo_single_agent.py
+│   ├── av_mappo_fleet.py
+│   ├── av_eval_all_methods.py
+│   └── av_ablation_study.py
+├── results/
+│   ├── experiment_results.csv    # All numbers for Table 1
+│   ├── ppo_learning_curve.png
+│   ├── deadline_comparison_bar.png
+│   ├── rsu_utilization_time.png
+│   └── scalability_fleet_size.png
+├── thesis/
+│   ├── chapter1_introduction.tex (or .docx)
+│   ├── chapter3_system_model.tex
+│   ├── chapter4_methodology.tex
+│   └── chapter5_experiments.tex
+├── models/
+│   ├── av_dqn_baseline.zip
+│   ├── av_ppo_single_agent.zip
+│   └── av_mappo_fleet.zip
+├── requirements.txt
+└── README.md
+```
+
+---
+
 *Generated for: MULTI-AGENT DEEP REINFORCEMENT LEARNING FOR SUSTAINABLE ADAPTIVE SCHEDULING AND REPLANNING IN DYNAMIC ENVIRONMENTS*
 *Domains covered: Project Management (Top 1) | Cloud Computing (Top 2) | Edge Computing (Top 3) | AV/V2X Specialization*
