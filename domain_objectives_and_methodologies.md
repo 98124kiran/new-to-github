@@ -308,39 +308,367 @@ pip install gymnasium stable-baselines3 numpy matplotlib pandas torch
 ---
 ---
 
-## 📊 HEAD-TO-HEAD COMPARISON: Top 1 vs Top 2
+---
+---
 
-| Feature | 🥇 Project Management | 🥈 Cloud Computing |
-|---|---|---|
-| **Environment Complexity** | ⭐ Very Simple | ⭐⭐ Simple |
-| **State Space Size** | Small (10–100 dims) | Medium (100–10,000 dims) |
-| **Action Space** | Small discrete | Medium discrete |
-| **Data Availability** | PSPLIB (structured) | Google/Alibaba traces (huge) |
-| **Domain Knowledge Needed** | None | Basic cloud concepts |
-| **Setup Time** | 1–2 hours | 2–4 hours |
-| **Existing Gym Envs** | Build from scratch (easy) | Several available |
-| **MARL Applicability** | ✅ Each resource = agent | ✅ Each rack/zone = agent |
-| **Sustainability Objective** | ✅ Energy-aware scheduling | ✅ Green cloud / server sleep |
-| **Dynamic Replanning** | ✅ Task disruptions | ✅ Node failures |
-| **Thesis Alignment** | ⭐⭐⭐⭐⭐ Perfect | ⭐⭐⭐⭐⭐ Perfect |
+## 🥉 TOP 3 DOMAIN: Edge Computing Task Offloading & Scheduling
+
+### ✅ Is Edge Computing Easy for a Student? — Verdict: YES (Recommended)
+
+**Edge Computing ranks as the 3rd easiest domain** for this exact MARL research thesis. Here is why:
+
+| Factor | Assessment |
+|---|---|
+| **Action space** | Very small: {process locally, offload to edge server 1, offload to edge server 2, offload to cloud} |
+| **State space** | Manageable: task size + device battery + server load + network bandwidth |
+| **Domain knowledge** | Minimal — no hardware needed, fully simulatable |
+| **Open-source envs** | Several available (MEC-Gym, EdgeSimPy, custom gym wrappers) |
+| **Real-world relevance** | Extremely high: IoT, smart cities, healthcare wearables, autonomous vehicles |
+| **MARL fit** | ⭐⭐⭐⭐⭐ Perfect — each IoT device = one independent agent |
+| **Thesis keyword fit** | ⭐⭐⭐⭐⭐ Every word in your title maps naturally to edge computing |
+
+**Why It Fits Your Thesis Title Perfectly:**
+```
+"Multi-Agent"   → Each IoT device / mobile device = 1 independent RL agent
+"Deep RL"       → DQN / PPO policy for offloading decisions
+"Sustainable"   → Minimize device battery drain + edge server energy consumption
+"Adaptive"      → React to changing network conditions and server loads in real time
+"Replanning"    → When an edge server goes offline, reroute tasks to another node
+"Dynamic"       → Network bandwidth fluctuates, servers get overloaded, tasks arrive unpredictably
+"Environment"   → The network topology with IoT devices, edge nodes, and cloud backend
+```
 
 ---
 
-## 🎯 Recommended Thesis Structure Using Both Domains
+### 🌍 Real-World Scenarios for Edge Computing
+
+#### Scenario 1: Smart Healthcare — Hospital Wearables
+```
+Real World:
+  Patient wears a health monitor (ECG, SpO2, blood pressure sensor)
+  Monitor generates tasks: "analyze ECG pattern", "detect anomaly"
+
+Problem:
+  Device has limited battery → cannot process everything locally
+  Must decide: process on device OR offload to hospital edge server OR send to cloud
+
+MARL Application:
+  Each patient device = 1 agent
+  Agents compete for hospital edge server bandwidth
+  Goal: minimize patient data analysis latency + preserve device battery life
+  Dynamic disruption: edge server goes offline → agents replan to use cloud
+```
+
+#### Scenario 2: Autonomous Vehicles — Roadside Edge Nodes
+```
+Real World:
+  Self-driving cars generate massive real-time tasks: object detection, lane recognition,
+  pedestrian tracking, traffic sign reading
+
+Problem:
+  Car's onboard GPU is limited → cannot run all models at 30fps locally
+  Must offload to roadside edge nodes (RSUs) for low-latency response
+
+MARL Application:
+  Each vehicle = 1 agent making offloading decisions at every intersection
+  Agents coordinate to avoid overloading the same RSU simultaneously
+  Dynamic disruption: RSU failure → car must switch to next RSU or process locally
+  Sustainability: minimize total computation energy across the vehicle fleet
+```
+
+#### Scenario 3: Smart Manufacturing — Factory Floor
+```
+Real World:
+  Robotic arms on a factory line run quality inspection using computer vision
+  Defect detection tasks need to be processed within milliseconds
+
+Problem:
+  Factory has 50 robots generating visual inspection tasks simultaneously
+  Edge servers on each production line have limited capacity
+
+MARL Application:
+  Each robot = 1 agent deciding which edge server to send its inspection task to
+  Goal: minimize inspection latency + balance edge server loads
+  Sustainability: schedule heavy tasks during energy off-peak hours
+  Dynamic disruption: production surge → edge servers overloaded → adaptive rescheduling
+```
+
+#### Scenario 4: Smart City — Traffic Camera Analytics
+```
+Real World:
+  Hundreds of traffic cameras send video to nearby edge nodes for:
+  - License plate recognition
+  - Congestion detection
+  - Accident detection
+
+Problem:
+  At peak hours, all cameras generate tasks simultaneously
+  Edge nodes become overloaded → need to offload some tasks to cloud
+
+MARL Application:
+  Each camera = 1 agent deciding when to process locally vs edge vs cloud
+  Goal: minimize detection latency (accidents must be detected in <2 seconds)
+  Sustainability: minimize total network data transfer + edge server energy
+```
+
+#### Scenario 5: Disaster Response — First Responder Networks
+```
+Real World:
+  Firefighters/rescue teams carry body cameras and sensors in disaster zones
+  Edge servers mounted on response vehicles process situational awareness tasks
+
+Problem:
+  Vehicle edge servers have limited power (running on generator)
+  Network coverage is patchy and unreliable
+
+MARL Application:
+  Each responder device = 1 agent
+  Adaptive replanning: when one vehicle leaves the area, reroute tasks to another
+  Sustainability: maximize task processing per unit of generator fuel
+```
+
+---
+
+### 📋 ALL OBJECTIVES — Edge Computing Task Offloading
+
+#### Objective 1: Minimize Task Execution Latency (E2E Delay)
+- **Goal**: Complete each task (local processing + transmission + edge processing) in minimum time
+- **Metric**: End-to-end latency = transmission delay + queuing delay + processing time
+- **Real World**: Autonomous vehicle must detect pedestrians in <100ms to stop safely
+- **Why Easy**: Single scalar to minimize; direct reward signal
+
+#### Objective 2: Minimize Device Energy Consumption (Battery Life)
+- **Goal**: Reduce energy used by IoT/mobile device for local processing and data transmission
+- **Metric**: Energy = CPU power × local processing time + transmission power × data size / bandwidth
+- **Real World**: Hospital wearable should last 24 hours on one charge
+- **Sustainability Link**: Directly matches "Sustainable" in thesis title
+
+#### Objective 3: Minimize Edge Server Energy Consumption (Green Edge)
+- **Goal**: Reduce total energy consumed by edge servers — turn off idle servers, consolidate tasks
+- **Metric**: Total server energy = sum(active server power × active time)
+- **Real World**: A network of 500 edge nodes in a smart city consumes as much power as a small data center
+- **Sustainability Link**: This is the "green" angle unique to edge computing
+
+#### Objective 4: Meet Task Deadline Constraints
+- **Goal**: Ensure time-critical tasks (medical alerts, collision detection) finish before their deadlines
+- **Metric**: Deadline miss rate (%) + weighted tardiness for near-miss tasks
+- **Real World**: ECG anomaly alert must trigger within 5 seconds to be clinically useful
+- **Maps to**: SLA objective in Cloud Computing; Tardiness in Project Management
+
+#### Objective 5: Maximize Edge Server Utilization
+- **Goal**: Keep edge server compute capacity occupied without overloading
+- **Metric**: Utilization = (tasks processed) / (total server capacity) per time window
+- **Tradeoff**: High utilization increases queueing delay; needs balance
+
+#### Objective 6: Minimize Data Privacy / Offloading Cost
+- **Goal**: Sensitive tasks (medical, personal) should stay on local/edge devices rather than going to cloud
+- **Metric**: Privacy violation score + monetary offloading cost to cloud provider
+- **Real World**: GDPR compliance — patient ECG data must not leave hospital edge network
+- **Unique to Edge**: Not present in cloud or project management domains
+
+#### Objective 7: Adaptive Task Rerouting Under Edge Server Failure
+- **Goal**: When an edge node goes offline, immediately reroute its queued tasks to neighboring nodes or cloud
+- **Metric**: Service recovery time + additional latency after failure event
+- **Real World**: Road-side unit (RSU) loses power → all vehicles suddenly need to offload elsewhere
+- **Core to Thesis**: "Replanning in Dynamic Environment" — this is the central scenario
+
+#### Objective 8: Load Balancing Across Edge Nodes (Multi-Agent Coordination)
+- **Goal**: Prevent any one edge server from becoming a bottleneck while others are idle
+- **Metric**: Standard deviation of server utilization across all edge nodes (minimize it)
+- **Real World**: In a smart factory, one production line's edge server gets overwhelmed at shift start
+- **MARL Specific**: Requires agents to coordinate without direct communication
+
+---
+
+### 🔬 METHODOLOGIES — Edge Computing Task Offloading
+
+#### Methodology 1: DQN for Single-Device Offloading (Simplest Baseline)
+| Component | Detail |
+|---|---|
+| **State** | [task_size, task_deadline, device_battery%, edge_server_load%, network_bandwidth] |
+| **Action** | Discrete: {0=process_locally, 1=offload_edge1, 2=offload_edge2, 3=offload_cloud} |
+| **Reward** | −latency − α×energy_cost − β×deadline_violation_penalty |
+| **Network** | 2-layer MLP (64→32→4 actions) |
+| **Training Steps** | 50,000–200,000 steps sufficient |
+| **Best For** | Single device learning, baseline experiments |
+
+**Algorithm Steps:**
+```
+1. Observe state s_t: [task_size=500KB, battery=78%, edge_load=45%, bandwidth=10Mbps]
+2. ε-greedy: pick action a_t = "offload to edge server 1"
+3. Simulate offloading: latency=120ms, energy_used=0.02J
+4. Compute reward: r_t = −0.12 (latency) − 0.002 (energy) = −0.122
+5. Store in replay buffer, update Q-network
+6. Over time: agent learns to offload to edge when battery is low, process locally when edge is busy
+```
+
+---
+
+#### Methodology 2: PPO for Multi-Task Scheduling on Edge
+| Component | Detail |
+|---|---|
+| **State** | Queue of N pending tasks + edge server states + device battery |
+| **Action** | For each task in queue: continuous priority weight OR discrete offload decision |
+| **Reward** | −Σ(weighted latency) − γ×energy + δ×tasks_completed_on_time |
+| **Architecture** | Actor-Critic MLP; actor outputs softmax over offload options |
+| **Advantage** | Handles multiple tasks being scheduled simultaneously per timestep |
+| **Best For** | Device with a queue of 5–20 tasks arriving in a burst (e.g., video frame burst) |
+
+---
+
+#### Methodology 3: MAPPO — Each IoT Device Is an Agent (Core Thesis Method)
+| Component | Detail |
+|---|---|
+| **Agents** | Each IoT device / mobile user = 1 independent RL agent |
+| **Local Observation** | Own task queue + own battery + visible edge server loads |
+| **Global Critic** | During training: sees ALL devices' states + ALL server loads |
+| **Action** | Each device decides where to offload its next task |
+| **Shared Reward** | −total_system_latency − total_energy (global sustainability metric) |
+| **Individual Reward** | −own_deadline_violations − own_battery_drain |
+| **CTDE** | Centralized training, decentralized execution |
+
+**Real-World CTDE Explanation:**
+```
+Training (done once, offline):
+  Simulate 100 hospital wearables simultaneously
+  Central critic sees ALL 100 devices' battery levels + hospital edge server load
+  Each device agent learns: "if edge server load > 80%, don't offload there"
+
+Deployment (runs forever, no central coordinator needed):
+  Each wearable runs its own policy independently
+  No Wi-Fi connection to a central server needed during operation
+  Works even if the hospital network is partially down
+```
+
+**Multi-Agent Load Balancing Without Explicit Communication:**
+```
+Agent 1 (Device A) sees: edge_server_1_load = 60% → offloads there
+Agent 2 (Device B) sees: edge_server_1_load = 75% → avoids, offloads to edge_server_2
+Agent 3 (Device C) sees: edge_server_1_load = 90% → processes locally
+
+Result: Implicit load balancing without agents talking to each other
+This is the core MARL contribution of your thesis!
+```
+
+---
+
+#### Methodology 4: Lyapunov Optimization + DRL (Hybrid — Advanced)
+| Component | Detail |
+|---|---|
+| **Lyapunov Component** | Provides theoretical stability guarantees for queue management |
+| **DRL Component** | Handles real-time offloading decisions under dynamic conditions |
+| **Why Combine** | Lyapunov alone is rigid; DRL alone has no stability guarantees |
+| **Best For** | Research papers requiring theoretical analysis + empirical results |
+| **Complexity** | ⭐⭐⭐⭐ High — requires optimization theory background |
+| **Use In Thesis** | Mention as "future work" or advanced variant |
+
+---
+
+#### Methodology 5: Curriculum Learning for Edge Environments
+| Stage | Scenario Simulated | What Agent Learns |
+|---|---|---|
+| **Stage 1** | 1 device, 1 edge server, stable network, no failures | Basic offload/local decision |
+| **Stage 2** | 5 devices, 2 edge servers, moderate contention | Basic load balancing |
+| **Stage 3** | 20 devices, 3 edge servers, random bandwidth fluctuation | Adapt to dynamic network |
+| **Stage 4** | 50 devices, 5 edge servers, random server failures, task bursts | Full MARL replanning |
+| **Real World** | Mirrors gradual deployment: pilot → ward → hospital-wide | Validates scalability |
+
+---
+
+#### Methodology 6: Heuristic Baselines (Comparison Only)
+| Heuristic | Decision Rule | Real-World Equivalent |
+|---|---|---|
+| **Always Local** | Never offload; process everything on device | Conservative, battery-killing approach |
+| **Always Offload** | Always send to edge/cloud | Latency-heavy when server is congested |
+| **Greedy Offload** | Offload if task size > threshold | Simple rule used in early IoT systems |
+| **Least Loaded First** | Always offload to the server with lowest current load | Standard load balancer |
+| **Random** | Randomly pick offload destination | Lower bound baseline |
+
+---
+
+### 🌐 Complete System Architecture — Edge Computing MARL
+
+```
+                    ┌─────────────────────────────────────────┐
+                    │            INTERNET / CLOUD              │
+                    │   (backup compute, high latency, costly) │
+                    └──────────────────┬──────────────────────┘
+                                       │ (high latency link)
+           ┌───────────────────────────┼───────────────────────────┐
+           │                           │                           │
+    ┌──────┴──────┐             ┌──────┴──────┐             ┌──────┴──────┐
+    │  Edge Node 1│             │  Edge Node 2│             │  Edge Node 3│
+    │ (hospital   │             │ (factory    │             │ (roadside   │
+    │  server)    │             │  floor)     │             │  RSU unit)  │
+    └──────┬──────┘             └──────┬──────┘             └──────┬──────┘
+           │ (low latency link)         │                           │
+    ┌──────┼──────┐             ┌──────┼──────┐             ┌──────┼──────┐
+    │      │      │             │      │      │             │      │      │
+  📱Wearable   📱Wearable    🤖Robot  🤖Robot   🚗Car    🚗Car    🚗Car
+  Agent 1    Agent 2       Agent 3  Agent 4   Agent 5  Agent 6  Agent 7
+
+  Each 📱🤖🚗 = 1 MARL Agent making independent offloading decisions
+  Each makes decisions using ONLY local observations (CTDE execution phase)
+```
+
+---
+
+### 📦 Tech Stack for Top 3 (Edge Computing)
+```bash
+pip install gymnasium stable-baselines3 numpy matplotlib pandas torch
+# Edge-specific simulation:
+pip install EdgeSimPy          # edge computing simulator
+# OR build lightweight custom gym env (recommended for students — 100-150 lines)
+```
+
+### 📁 Datasets & Benchmarks
+| Dataset | Description | Use |
+|---|---|---|
+| **Shanghai Telecom Dataset** | Real mobile user traces + base station loads | Network load patterns |
+| **Alibaba Mobile Edge Trace** | Task offloading traces from real deployments | Task size + arrival rates |
+| **MEC Synthetic Generator** | Configurable Poisson task arrivals + random failures | Student experiments |
+| **SUMO Traffic Simulator** | Vehicle mobility traces for V2X edge scenarios | Autonomous vehicle scenario |
+
+---
+---
+
+## 📊 THREE-DOMAIN COMPARISON: Top 1 vs Top 2 vs Top 3
+
+| Feature | 🥇 Project Management | 🥈 Cloud Computing | 🥉 Edge Computing |
+|---|---|---|---|
+| **Environment Complexity** | ⭐ Very Simple | ⭐⭐ Simple | ⭐⭐ Simple |
+| **State Space Size** | Small (10–100 dims) | Medium (100–10,000 dims) | Small–Medium (10–500 dims) |
+| **Action Space** | Small discrete | Medium discrete | Very small discrete (3–4 choices) |
+| **Data Availability** | PSPLIB (structured) | Google/Alibaba traces | Shanghai Telecom / Synthetic |
+| **Domain Knowledge Needed** | None | Basic cloud concepts | Basic IoT/network concepts |
+| **Setup Time** | 1–2 hours | 2–4 hours | 2–3 hours |
+| **Existing Gym Envs** | Build from scratch (easy) | Several available | A few (EdgeSimPy) + custom |
+| **MARL Applicability** | ✅ Each resource = agent | ✅ Each rack/zone = agent | ✅ Each IoT device = agent |
+| **Sustainability Objective** | ✅ Energy-aware scheduling | ✅ Green cloud / server sleep | ✅✅ Battery + server energy (dual) |
+| **Dynamic Replanning** | ✅ Task disruptions | ✅ Node failures | ✅ Server failures + network changes |
+| **Real-World Impact** | ⭐⭐⭐ Business projects | ⭐⭐⭐⭐ Industry infrastructure | ⭐⭐⭐⭐⭐ Healthcare/vehicles/cities |
+| **Thesis Alignment** | ⭐⭐⭐⭐⭐ Perfect | ⭐⭐⭐⭐⭐ Perfect | ⭐⭐⭐⭐⭐ Perfect |
+| **Student Recommendation** | ✅ Start here | ✅ Second experiment | ✅ Third experiment or swap with Top 2 |
+
+---
+
+## 🎯 Recommended Thesis Structure Using All Three Domains
 
 ```
 Chapter 1: Introduction
   → Problem: Dynamic scheduling in changing environments
-  → Motivation: Energy efficiency + deadline compliance
+  → Motivation: Energy efficiency + deadline compliance + real-world IoT growth
 
 Chapter 2: Literature Review
-  → Traditional scheduling (CPM, EDF, Tetris)
+  → Traditional scheduling (CPM, EDF, Greedy Offload)
   → DRL for scheduling (DQN, PPO, MARL)
+  → Edge computing + MARL papers (survey)
 
 Chapter 3: Methodology
   → MARL framework (CTDE, MAPPO)
   → Environment design for Project Management (Domain 1)
   → Environment design for Cloud Computing (Domain 2)
+  → Environment design for Edge Computing (Domain 3)
 
 Chapter 4: Experiments — Domain 1 (Project Management)
   → Objectives 1–7 evaluated
@@ -350,16 +678,26 @@ Chapter 5: Experiments — Domain 2 (Cloud Computing)
   → Objectives 1–8 evaluated
   → MAPPO vs DRF vs Tetris baseline
 
-Chapter 6: Cross-Domain Analysis
-  → Which MARL architecture generalizes across both domains?
-  → Sustainability gains in both domains
+Chapter 6: Experiments — Domain 3 (Edge Computing)
+  → Objectives 1–8 evaluated across 3 real-world scenarios
+  → MAPPO vs Greedy Offload vs Least Loaded baseline
+  → Case study: Smart Healthcare scenario (most impactful)
 
-Chapter 7: Conclusion
+Chapter 7: Cross-Domain Analysis
+  → Which MARL architecture generalizes across all three domains?
+  → Sustainability gains compared across domains
+  → Scalability: project (10 tasks) → cloud (1000 jobs) → edge (50 devices)
+
+Chapter 8: Conclusion
+  → Contributions to MARL + sustainable scheduling
+  → Limitations and future work
 ```
 
 ---
 
-## ⚡ Quick-Start Code Skeleton (Project Management — Top 1)
+## ⚡ Quick-Start Code Skeletons
+
+### Skeleton 1: Project Management (Top 1)
 
 ```python
 import gymnasium as gym
@@ -435,4 +773,127 @@ print("Training complete!")
 
 ---
 
+### Skeleton 2: Edge Computing Offloading (Top 3)
+
+```python
+import gymnasium as gym
+import numpy as np
+from gymnasium import spaces
+
+class EdgeOffloadingEnv(gym.Env):
+    """
+    Edge Computing Task Offloading Environment for MARL research.
+    Simulates an IoT device deciding where to process each task:
+      0 = process locally on device
+      1 = offload to edge server 1
+      2 = offload to edge server 2
+      3 = offload to cloud
+
+    Real-world analogy: hospital wearable deciding where to run ECG analysis.
+    """
+    def __init__(self, n_edge_servers=2, max_tasks_per_episode=20):
+        super().__init__()
+        self.n_edge_servers = n_edge_servers
+        self.max_tasks = max_tasks_per_episode
+        # Actions: 0=local, 1..n_edge_servers=edge, last=cloud
+        self.n_actions = 1 + n_edge_servers + 1
+        self.action_space = spaces.Discrete(self.n_actions)
+        # State: [task_size_norm, task_deadline_norm, battery_level,
+        #         edge1_load, edge2_load, bandwidth_norm]
+        self.observation_space = spaces.Box(
+            low=0.0, high=1.0,
+            shape=(3 + n_edge_servers + 1,),
+            dtype=np.float32
+        )
+
+    def reset(self, seed=None):
+        self.tasks_done = 0
+        self.battery = 1.0          # 100% battery
+        self.edge_loads = np.random.uniform(0.1, 0.5, self.n_edge_servers)
+        return self._generate_task(), {}
+
+    def _generate_task(self):
+        """Generate a random task and return the state observation."""
+        self.task_size = np.random.uniform(0.1, 1.0)       # normalized 0–1
+        self.task_deadline = np.random.uniform(0.3, 1.0)   # normalized urgency
+        self.bandwidth = np.random.uniform(0.2, 1.0)       # current network quality
+        return np.array([
+            self.task_size,
+            self.task_deadline,
+            self.battery,
+            *self.edge_loads,
+            self.bandwidth
+        ], dtype=np.float32)
+
+    def step(self, action):
+        latency, energy = self._simulate_offloading(action)
+
+        # Reward: minimize latency and energy, penalize deadline violations
+        deadline_threshold = self.task_deadline * 0.5  # urgency window
+        deadline_penalty = -5.0 if latency > deadline_threshold else 0.0
+        reward = -latency - 0.5 * energy + deadline_penalty
+
+        # Update state
+        self.battery = max(0.0, self.battery - energy * 0.05)
+        # Edge server loads fluctuate dynamically
+        self.edge_loads = np.clip(
+            self.edge_loads + np.random.uniform(-0.1, 0.1, self.n_edge_servers),
+            0.0, 1.0
+        )
+        self.tasks_done += 1
+        done = self.tasks_done >= self.max_tasks or self.battery <= 0.0
+        next_obs = self._generate_task() if not done else np.zeros(
+            self.observation_space.shape, dtype=np.float32
+        )
+        return next_obs, reward, done, False, {
+            "latency": latency, "energy": energy, "battery": self.battery
+        }
+
+    def _simulate_offloading(self, action):
+        """
+        Simulate latency and energy for each offloading decision.
+        Returns (latency, energy_cost) both normalized 0–1.
+        """
+        if action == 0:
+            # Process locally: fast if small task, slow if large; always uses battery
+            latency = self.task_size * 0.8          # local CPU is slow
+            energy = self.task_size * 0.6           # high local CPU energy
+        elif action <= self.n_edge_servers:
+            # Offload to edge server (action 1 or 2)
+            server_idx = action - 1
+            transmission = self.task_size / max(self.bandwidth, 0.1)
+            queue_delay = self.edge_loads[server_idx] * 0.5
+            latency = transmission + queue_delay
+            energy = transmission * 0.3             # transmission energy only
+        else:
+            # Offload to cloud: high latency, low device energy, high cost
+            latency = self.task_size / max(self.bandwidth, 0.1) + 0.4  # WAN delay
+            energy = self.task_size * 0.2           # small transmission energy
+        return float(np.clip(latency, 0, 1)), float(np.clip(energy, 0, 1))
+
+
+# Training with PPO (Stable-Baselines3)
+from stable_baselines3 import PPO
+
+env = EdgeOffloadingEnv(n_edge_servers=2, max_tasks_per_episode=20)
+model = PPO("MlpPolicy", env, verbose=1, learning_rate=3e-4, n_steps=1024)
+model.learn(total_timesteps=100_000)
+model.save("edge_offloading_ppo")
+print("Edge Computing agent training complete!")
+
+# Quick evaluation
+obs, _ = env.reset()
+for _ in range(20):
+    action, _ = model.predict(obs, deterministic=True)
+    obs, reward, done, _, info = env.step(action)
+    action_names = ["Local", "Edge-1", "Edge-2", "Cloud"]
+    print(f"Action: {action_names[action]:8s} | Latency: {info['latency']:.3f} | "
+          f"Energy: {info['energy']:.3f} | Battery: {info['battery']:.2f}")
+    if done:
+        break
+```
+
+---
+
 *Generated for: MULTI-AGENT DEEP REINFORCEMENT LEARNING FOR SUSTAINABLE ADAPTIVE SCHEDULING AND REPLANNING IN DYNAMIC ENVIRONMENTS*
+*Domains covered: Project Management (Top 1) | Cloud Computing (Top 2) | Edge Computing (Top 3)*
