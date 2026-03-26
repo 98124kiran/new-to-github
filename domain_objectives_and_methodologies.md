@@ -894,6 +894,533 @@ for _ in range(20):
 ```
 
 ---
+---
+
+## 🚗 SPECIALIZATION: Autonomous Vehicle (V2X) Edge Computing
+
+### ❓ Is AV Edge Computing Easy for a Student? — Honest Assessment
+
+**Short answer: YES — but only if you keep it simulation-based (no real cars, no hardware).**
+
+Here is an honest breakdown of the difficulty:
+
+| Factor | Generic Edge (Top 3) | AV-Specific Edge | Verdict |
+|---|---|---|---|
+| **Action space** | 3–4 choices | 3–5 choices (same!) | ✅ Same difficulty |
+| **State space** | 5–6 variables | 7–9 variables (adds vehicle speed, position) | ✅ Still manageable |
+| **Domain knowledge** | Basic IoT | Basic V2X/networking concepts | ⚠️ Small extra learning |
+| **Simulation tools** | Custom gym (easy) | SUMO traffic sim OR custom gym | ✅ SUMO is free and well-documented |
+| **Data availability** | Synthetic | SUMO synthetic / VeReMi dataset | ✅ Free & available |
+| **Hardware needed** | None | None (pure simulation) | ✅ No hardware needed |
+| **Real-world relevance** | High | Extremely high (Tesla, Waymo, industry) | ✅⭐ Best for CV/portfolio |
+| **MARL fit** | Each IoT device = agent | Each vehicle = agent | ✅ Same MARL structure |
+| **Thesis keyword fit** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ✅ Perfect fit |
+
+**Conclusion: Autonomous Vehicle edge computing is equally easy to implement as the generic edge scenario — because the MARL structure is identical. A vehicle is just a specific type of IoT agent.**
+
+**The only extra step:** learn what tasks a vehicle generates (object detection, path planning, HD map update) — this takes 2–3 hours of reading, not weeks.
+
+---
+
+### 🌍 Real-World Context: Why Autonomous Vehicles Need Edge Computing
+
+```
+The Problem with Onboard-Only Processing:
+  A self-driving car generates 4 TB of sensor data per day
+  (cameras, LiDAR, radar, GPS, ultrasonic sensors)
+
+  The car's onboard computer (e.g., NVIDIA DRIVE Orin) can handle some tasks,
+  but NOT all tasks at low latency simultaneously:
+
+  Task 1: Pedestrian detection (LiDAR + camera fusion)  → 50ms deadline
+  Task 2: Lane change path planning                      → 100ms deadline
+  Task 3: HD map update (download new road changes)      → 2000ms deadline
+  Task 4: V2V collision warning (other car sends alert)  → 20ms deadline ← CRITICAL
+  Task 5: Traffic signal phase prediction                → 500ms deadline
+
+  Solution: OFFLOAD non-critical tasks to nearby Roadside Unit (RSU) edge servers
+  Keep only safety-critical tasks (V2V collision) processed locally
+```
+
+```
+The V2X (Vehicle-to-Everything) Network Topology:
+                    ┌──────────────────────────────────┐
+                    │   Cloud Data Center               │
+                    │   (HD map updates, fleet mgmt)    │
+                    └──────────────┬───────────────────┘
+                                   │ high latency (100–500ms)
+          ┌────────────────────────┼────────────────────────┐
+          │                        │                        │
+   ┌──────┴──────┐          ┌──────┴──────┐          ┌──────┴──────┐
+   │   RSU-1     │          │   RSU-2     │          │   RSU-3     │
+   │ Intersection│          │ Motorway    │          │ Parking Lot │
+   │ Edge Server │          │ Edge Server │          │ Edge Server │
+   └──────┬──────┘          └──────┬──────┘          └─────────────┘
+          │ low latency (5–20ms)   │
+   ┌──────┼──────┐          ┌──────┼──────┐
+   │      │      │          │      │      │
+  🚗Car1 🚗Car2 🚗Car3    🚗Car4 🚗Car5 🚗Car6
+  Agent1 Agent2 Agent3    Agent4 Agent5 Agent6
+
+  Each 🚗 = 1 MARL Agent deciding: process locally OR offload to RSU OR send to cloud
+  RSU serves nearby vehicles (V2I: Vehicle-to-Infrastructure)
+  Vehicles also communicate directly (V2V: Vehicle-to-Vehicle)
+```
+
+---
+
+### 📋 ALL OBJECTIVES — Autonomous Vehicle V2X Edge Computing
+
+#### Objective 1: Minimize Safety-Critical Task Latency (Hard Deadline)
+- **Goal**: Ensure collision-warning and obstacle-detection tasks complete within strict deadlines
+- **Metric**: Deadline miss rate (%) for tasks with deadline ≤ 100ms
+- **Real World**: If pedestrian detection takes >100ms, the car cannot brake in time at 60 km/h
+- **Difficulty**: ⭐⭐ Easy — simply assign the highest penalty in reward for deadline misses
+- **Unique to AV**: Two-tier deadline: soft (path planning, 200ms) vs hard (collision, 50ms)
+
+#### Objective 2: Minimize End-to-End Latency for All Tasks
+- **Goal**: Minimize total processing time across all task types (safety-critical + non-critical)
+- **Metric**: Average E2E latency = transmission time + RSU queuing delay + processing time
+- **Real World**: Lane change must complete before the car enters the target lane
+- **Difficulty**: ⭐ Easiest — direct reward signal, single scalar to minimize
+
+#### Objective 3: Minimize Vehicle Computation Energy (Battery / Fuel)
+- **Goal**: Reduce energy spent on local computation (saves EV battery range)
+- **Metric**: Energy per task = CPU power × local processing time
+- **Real World**: A Tesla Model 3's DRIVE computer uses 72W at full load — offloading saves range
+- **Sustainability Link**: Directly matches "Sustainable" keyword in thesis title
+
+#### Objective 4: Minimize RSU Energy Consumption (Green Infrastructure)
+- **Goal**: Reduce total power used by roadside edge servers
+- **Metric**: Total RSU energy = sum(RSU_power × active_duration) across all RSUs
+- **Real World**: A city with 500 RSUs at intersections consumes as much power as a small factory
+- **Sustainability Link**: Unique to V2X — infrastructure-level sustainability
+
+#### Objective 5: Maximize RSU Utilization (Load Balancing)
+- **Goal**: Spread vehicle task load evenly across RSUs; avoid some RSUs being idle while others overflow
+- **Metric**: Standard deviation of RSU utilization across the road network (minimize)
+- **Real World**: Morning rush hour overloads city-center RSUs while suburban RSUs sit idle
+- **MARL Specific**: Vehicles implicitly load-balance without explicit communication
+
+#### Objective 6: Adaptive Task Rerouting When RSU Goes Offline
+- **Goal**: When a roadside unit fails or loses connectivity, vehicles seamlessly switch to next RSU or process locally
+- **Metric**: Service recovery time (seconds until all vehicles find an alternative)
+- **Real World**: RSU loses power in a storm → 30 cars suddenly lose edge compute support
+- **Core to Thesis**: "Replanning in Dynamic Environment" — this is the scenario that fits best
+- **Difficulty**: ⭐⭐⭐ Moderate — just change server availability flag in simulation
+
+#### Objective 7: V2V Cooperative Offloading (Vehicle-to-Vehicle)
+- **Goal**: When a vehicle is out of RSU range, offload tasks to a nearby vehicle acting as relay
+- **Metric**: Tasks completed on time when no RSU available (%)
+- **Real World**: In a rural highway with no RSUs, a convoy of trucks shares compute resources
+- **Difficulty**: ⭐⭐⭐ Moderate — adds peer-to-peer dimension to the offloading decision
+- **MARL Contribution**: Agents cooperate directly, not just through shared infrastructure
+
+#### Objective 8: Prioritized Multi-Task Scheduling (Task Queue Management)
+- **Goal**: Given multiple pending tasks, decide the best order + destination for each
+- **Metric**: Weighted sum of tardiness = Σ(priority_weight × max(0, finish_time − deadline))
+- **Real World**: Car receives 5 tasks simultaneously; must prioritize collision warning over HD map update
+- **Difficulty**: ⭐⭐ Easy — add priority weighting to existing reward function
+
+---
+
+### 🔬 METHODOLOGIES — Autonomous Vehicle V2X Edge Computing
+
+#### Methodology 1: DQN — Single Vehicle Offloading (Simplest Start)
+| Component | Detail |
+|---|---|
+| **State** | [task_type, task_size, deadline_urgency, vehicle_speed, rsu1_load, rsu2_load, bandwidth] |
+| **Action** | Discrete: {0=local, 1=offload_RSU1, 2=offload_RSU2, 3=offload_cloud} |
+| **Reward** | −latency − α×energy − β×deadline_miss_penalty |
+| **Network** | 2-layer MLP (64→32→4 actions) |
+| **Training Steps** | 100,000 steps (fast to train) |
+| **Best For** | Single-vehicle baseline; understand the offloading decision first |
+
+**Concrete Example Walkthrough:**
+```
+Timestep: Car detects pedestrian at 40m, moving at 50 km/h
+  State: [task=obstacle_detection, size=2MB, deadline=80ms, speed=50kmh,
+          rsu1_load=45%, rsu2_load=80%, bandwidth=50Mbps]
+
+  DQN evaluates Q-values:
+    Q(local)     = −0.85  (local processing = 120ms > deadline → too slow)
+    Q(RSU-1)     = −0.12  (RSU-1 lightly loaded = 60ms ✓)
+    Q(RSU-2)     = −0.45  (RSU-2 heavily loaded = 150ms > deadline)
+    Q(cloud)     = −0.95  (cloud WAN = 300ms >> deadline)
+
+  Best action: offload to RSU-1
+  Result: 60ms latency, 0.01J energy, deadline met ✓
+  Reward: −0.06 − 0.005 + 0 = −0.065
+```
+
+---
+
+#### Methodology 2: PPO — Multi-Task Queue per Vehicle
+| Component | Detail |
+|---|---|
+| **State** | Task queue (5 tasks with type/size/deadline) + RSU states + vehicle position |
+| **Action** | For each task: (destination, priority_level) — mixed discrete |
+| **Reward** | −Σ(w_i × latency_i) − γ×energy + δ×safety_tasks_on_time |
+| **Key Advantage** | Handles the realistic case where a car has a backlog of tasks, not just one |
+| **Training Steps** | 200,000 steps |
+| **Real-World Match** | Accurately models a self-driving car's actual compute pipeline |
+
+---
+
+#### Methodology 3: MAPPO — Fleet of Vehicles as Multi-Agent System (Core Thesis)
+| Component | Detail |
+|---|---|
+| **Agents** | Each vehicle = 1 independent RL agent |
+| **Local Observation** | Own task queue + own position + visible RSU loads + V2V neighbor info |
+| **Global Critic (training)** | Sees ALL vehicles' states + ALL RSU loads across the road network |
+| **Action** | Each vehicle decides where to send its next task |
+| **Shared Reward** | −total_fleet_latency − total_RSU_energy − deadline_misses |
+| **Individual Reward** | −own_latency − own_energy_consumption |
+| **CTDE** | Train centrally (offline simulation), deploy each car independently |
+
+**Why CTDE is Perfect for Autonomous Vehicles:**
+```
+Training Phase (done at Tesla/Waymo headquarters):
+  Simulate 1000 vehicles on a city road network
+  Central critic sees: all vehicles, all RSUs, all traffic conditions
+  Agents learn: "if RSU ahead is congested at rush hour, start offloading to RSU 2 earlier"
+
+Deployment Phase (runs in each car, forever):
+  Each car runs its own policy independently on its DRIVE computer
+  No internet connection required for offloading decisions
+  Car can make decisions even if 4G/5G network is partially down
+  → This is the key safety argument: decentralized resilience
+```
+
+**Fleet Load Balancing Without Communication:**
+```
+Rush hour at city intersection:
+  Vehicle A arrives: RSU load = 30% → offloads obstacle detection to RSU
+  Vehicle B arrives: RSU load = 55% → still offloads (below threshold)
+  Vehicle C arrives: RSU load = 78% → processes locally (learned threshold)
+  Vehicle D arrives: RSU load = 85% → looks for RSU-2, finds 40% → offloads there
+  Vehicle E arrives: RSU load = 90% → processes locally
+
+Result: No vehicle explicitly told others what it was doing.
+The RSU never got overwhelmed. This is emergent MARL coordination.
+```
+
+---
+
+#### Methodology 4: Graph Neural Network + MARL (GNN-MARL) — Advanced Variant
+| Component | Detail |
+|---|---|
+| **Why GNN** | Road network = graph (nodes=intersections/RSUs, edges=roads) |
+| **Encoding** | GNN encodes road topology → each vehicle gets spatially-aware embedding |
+| **Advantage** | Generalizes to new road layouts not seen in training |
+| **Complexity** | ⭐⭐⭐⭐ High — requires PyTorch Geometric |
+| **Use In Thesis** | Present as advanced variant in Chapter 6 or as future work |
+
+---
+
+#### Methodology 5: Curriculum Learning — Progressive V2X Scenarios
+| Stage | Scenario | What Agent Learns |
+|---|---|---|
+| **Stage 1** | 1 car, 1 RSU, stable network, no failures | Basic local/offload decision |
+| **Stage 2** | 5 cars, 2 RSUs, moderate traffic load | Load-aware offloading |
+| **Stage 3** | 20 cars, 3 RSUs, rush hour traffic patterns | Congestion prediction + proactive offloading |
+| **Stage 4** | 50 cars, 5 RSUs, RSU failure, V2V relay | Full adaptive replanning |
+| **Stage 5** | Mixed road types: urban + highway + rural | Domain generalization |
+| **Real World** | Mirrors real deployment: testing → pilot city → full rollout | |
+
+---
+
+#### Methodology 6: Heuristic Baselines (for Comparison)
+| Heuristic | Rule | AV Context |
+|---|---|---|
+| **Always Local** | Process all tasks on onboard computer | Overloads DRIVE chip; increases latency |
+| **Always Offload** | Always send to nearest RSU | Fails when RSU is overloaded or car is out of range |
+| **Nearest RSU** | Offload to geographically closest RSU | Ignores RSU load; causes hotspots |
+| **Least Loaded RSU** | Offload to least-loaded RSU in range | Better but ignores transmission distance |
+| **Priority-Based Local** | Hard safety tasks = local; soft tasks = edge | Simple but ignores RSU availability |
+
+---
+
+### 🛠️ Simulation Tools — How to Build Without Real Cars
+
+```
+Option A (Recommended for Students): Custom Gymnasium Environment
+  → Build a simplified city grid (10×10 intersections) in Python
+  → Place RSUs at each intersection
+  → Generate vehicle tasks using random distributions (Poisson arrival)
+  → No external simulator needed
+  → Total setup time: 3–5 hours
+
+Option B: SUMO + Custom Gym Wrapper
+  → SUMO (Simulation of Urban Mobility) = free, widely used traffic simulator
+  → Provides realistic vehicle movement traces
+  → Custom wrapper extracts vehicle positions → feeds into offloading RL env
+  → Total setup time: 1–2 days
+  → pip install traci (SUMO Python interface)
+
+Option C: VeReMi Dataset
+  → Real-world Vehicle-to-Vehicle message traces
+  → Use for task arrival patterns and message sizes
+  → No simulator needed — just replay the trace
+```
+
+---
+
+### 📦 Tech Stack — Autonomous Vehicle Edge Computing
+```bash
+# Core ML/RL
+pip install gymnasium stable-baselines3 numpy matplotlib pandas torch
+
+# Traffic simulation (Option B)
+# Install SUMO: https://sumo.dlr.de/docs/Installing/index.html
+pip install traci eclipse-sumo    # SUMO Python interface
+
+# Graph neural network (Option C, advanced)
+pip install torch-geometric       # for GNN-MARL variant
+```
+
+### 📁 Datasets & Benchmarks — AV-Specific
+| Dataset | Source | What It Provides |
+|---|---|---|
+| **SUMO Synthetic** | sumo.dlr.de (free) | Realistic vehicle mobility on configurable road maps |
+| **VeReMi Dataset** | IEEE open access | Real V2V message traces (size, frequency, content type) |
+| **LuST Scenario** | SUMO community | Luxembourg city traffic trace (24 hours, 9,000 vehicles) |
+| **InD Dataset** | RWTH Aachen (free) | Real intersection vehicle trajectories (Germany) |
+| **Custom Generator** | Your Python script | Fully controllable Poisson vehicle arrivals |
+
+---
+
+### ⚡ Quick-Start Code Skeleton: V2X Autonomous Vehicle Edge (Gymnasium)
+
+```python
+import gymnasium as gym
+import numpy as np
+from gymnasium import spaces
+
+# Task types with their deadlines (milliseconds, normalized to 0-1 where 1=1000ms)
+TASK_TYPES = {
+    "collision_warning":     {"size": 0.1, "deadline": 0.02, "priority": 10},
+    "obstacle_detection":    {"size": 0.3, "deadline": 0.08, "priority": 8},
+    "lane_change_planning":  {"size": 0.2, "deadline": 0.15, "priority": 7},
+    "traffic_sign_reading":  {"size": 0.4, "deadline": 0.30, "priority": 5},
+    "hd_map_update":         {"size": 0.9, "deadline": 0.80, "priority": 2},
+}
+
+class AutonomousVehicleEdgeEnv(gym.Env):
+    """
+    Autonomous Vehicle V2X Edge Computing Environment.
+    Simulates a single self-driving car deciding how to offload compute tasks
+    to Roadside Unit (RSU) edge servers or process locally.
+
+    This is the recommended student implementation — no SUMO/hardware needed.
+    """
+    def __init__(self, n_rsus=2, max_tasks_per_episode=30):
+        super().__init__()
+        self.n_rsus = n_rsus
+        self.max_tasks = max_tasks_per_episode
+        self.task_names = list(TASK_TYPES.keys())
+
+        # Actions: 0=local, 1..n_rsus=RSU offload, last=cloud
+        self.action_space = spaces.Discrete(1 + n_rsus + 1)
+
+        # State: [task_type (one-hot: 5), task_size, deadline_urgency,
+        #         vehicle_speed_norm, rsu1_load, rsu2_load, bandwidth_norm]
+        obs_dim = len(self.task_names) + 1 + 1 + 1 + n_rsus + 1
+        self.observation_space = spaces.Box(
+            low=0.0, high=1.0, shape=(obs_dim,), dtype=np.float32
+        )
+
+    def reset(self, seed=None):
+        self.tasks_done = 0
+        self.rsu_loads = np.random.uniform(0.1, 0.4, self.n_rsus)
+        self.vehicle_speed = np.random.uniform(0.3, 1.0)  # 0=stopped, 1=120km/h
+        self.bandwidth = np.random.uniform(0.4, 1.0)       # V2I link quality
+        return self._new_task_obs(), {}
+
+    def _new_task_obs(self):
+        """Sample a new task and build observation vector."""
+        self.task_idx = np.random.randint(len(self.task_names))
+        task = TASK_TYPES[self.task_names[self.task_idx]]
+        self.current_task_size = task["size"]
+        self.current_task_deadline = task["deadline"]
+        self.current_task_priority = task["priority"]
+
+        one_hot = np.zeros(len(self.task_names))
+        one_hot[self.task_idx] = 1.0
+
+        return np.concatenate([
+            one_hot,
+            [self.current_task_size],
+            [self.current_task_deadline],
+            [self.vehicle_speed],
+            self.rsu_loads,
+            [self.bandwidth]
+        ]).astype(np.float32)
+
+    def step(self, action):
+        latency, energy = self._compute_latency_energy(action)
+
+        # Hard deadline miss — especially penalized for safety-critical tasks
+        deadline_penalty = 0.0
+        if latency > self.current_task_deadline:
+            deadline_penalty = -self.current_task_priority * 2.0
+
+        # Reward: minimize latency + energy; bonus for meeting deadline
+        reward = (-latency * self.current_task_priority
+                  - 0.3 * energy
+                  + deadline_penalty)
+
+        # Dynamics: RSU loads drift over time (simulates other vehicles using them)
+        self.rsu_loads = np.clip(
+            self.rsu_loads + np.random.uniform(-0.08, 0.12, self.n_rsus),
+            0.0, 1.0
+        )
+        # Speed and bandwidth change (vehicle moves, signal varies)
+        self.vehicle_speed = float(np.clip(
+            self.vehicle_speed + np.random.uniform(-0.05, 0.05), 0.0, 1.0
+        ))
+        self.bandwidth = float(np.clip(
+            self.bandwidth + np.random.uniform(-0.1, 0.1), 0.1, 1.0
+        ))
+
+        self.tasks_done += 1
+        done = self.tasks_done >= self.max_tasks
+        next_obs = self._new_task_obs() if not done else np.zeros(
+            self.observation_space.shape, dtype=np.float32
+        )
+        action_names = ["Local"] + [f"RSU-{i+1}" for i in range(self.n_rsus)] + ["Cloud"]
+        return next_obs, reward, done, False, {
+            "task": self.task_names[self.task_idx],
+            "action": action_names[action],
+            "latency_ms": round(latency * 1000),
+            "deadline_ms": round(self.current_task_deadline * 1000),
+            "met_deadline": latency <= self.current_task_deadline,
+            "energy": round(energy, 4),
+        }
+
+    def _compute_latency_energy(self, action):
+        """Compute latency and energy for chosen offloading destination."""
+        size = self.current_task_size
+        bw = max(self.bandwidth, 0.05)
+
+        if action == 0:
+            # Local processing: depends on task size and vehicle speed (CPU throttled when driving fast)
+            cpu_load_factor = 1.0 + self.vehicle_speed * 0.5
+            latency = size * 0.6 * cpu_load_factor
+            energy = size * 0.7
+        elif action <= self.n_rsus:
+            # Offload to RSU: transmission + RSU queue processing
+            rsu_idx = action - 1
+            tx_latency = size / bw * 0.1          # 5G-like V2I link
+            queue_latency = self.rsu_loads[rsu_idx] * 0.3
+            proc_latency = size * 0.05             # RSU is powerful
+            latency = tx_latency + queue_latency + proc_latency
+            energy = size / bw * 0.15             # transmission energy only
+        else:
+            # Cloud: long WAN round-trip
+            latency = size / bw * 0.1 + 0.35      # 350ms base WAN delay
+            energy = size / bw * 0.08             # low device energy
+        return float(np.clip(latency, 0, 1)), float(np.clip(energy, 0, 1))
+
+
+# ── Training ──────────────────────────────────────────────────────────────────
+from stable_baselines3 import PPO
+
+env = AutonomousVehicleEdgeEnv(n_rsus=2, max_tasks_per_episode=30)
+model = PPO("MlpPolicy", env, verbose=1, learning_rate=3e-4, n_steps=1024,
+            batch_size=64, n_epochs=10)
+model.learn(total_timesteps=200_000)
+model.save("av_edge_offloading_ppo")
+print("AV Edge Computing agent training complete!")
+
+# ── Evaluation ────────────────────────────────────────────────────────────────
+obs, _ = env.reset()
+met, missed = 0, 0
+for _ in range(30):
+    action, _ = model.predict(obs, deterministic=True)
+    obs, reward, done, _, info = env.step(action)
+    status = "✅" if info["met_deadline"] else "❌"
+    print(f"{status} Task: {info['task']:25s} → {info['action']:6s} | "
+          f"Latency: {info['latency_ms']:4d}ms / Deadline: {info['deadline_ms']:4d}ms")
+    if info["met_deadline"]:
+        met += 1
+    else:
+        missed += 1
+    if done:
+        break
+print(f"\nDeadline met: {met}/{met+missed} ({100*met/(met+missed):.1f}%)")
+```
+
+---
+
+### 🎯 Autonomous Vehicle Thesis Structure (Focused Version)
+
+If you choose to focus your **entire thesis** on the AV/V2X scenario, this is a complete,
+publication-ready structure that is achievable in 3–6 months:
+
+```
+Chapter 1: Introduction
+  → Problem: AV onboard compute is insufficient for all real-time tasks
+  → Motivation: 4TB/day sensor data, safety-critical latency requirements
+  → Research Gap: Existing offloading algorithms are single-agent, not adaptive to RSU failures
+  → Contribution: MARL-based adaptive task offloading for sustainable V2X edge networks
+
+Chapter 2: Background
+  2.1 Autonomous vehicle compute pipeline (tasks, latency requirements)
+  2.2 V2X architecture (V2I, V2V, MEC at RSU level)
+  2.3 Deep RL fundamentals (DQN, PPO, Actor-Critic)
+  2.4 Multi-Agent RL (MARL, CTDE paradigm, MAPPO)
+  2.5 Related work: MEC offloading papers (2020–2025)
+
+Chapter 3: System Model and Problem Formulation
+  3.1 Network model: vehicles, RSUs, cloud tiers
+  3.2 Task model: 5 task types with size/deadline/priority
+  3.3 Latency model: transmission + queue + processing
+  3.4 Energy model: computation energy + transmission energy
+  3.5 MARL formulation: state/action/reward/agent definition
+
+Chapter 4: Proposed MARL Framework (MAPPO for V2X)
+  4.1 Agent design (each vehicle = 1 PPO agent)
+  4.2 CTDE architecture for fleet training
+  4.3 Reward function design (multi-objective: latency + energy + deadlines)
+  4.4 Curriculum training strategy (Stages 1–5)
+
+Chapter 5: Experiments and Results
+  5.1 Simulation setup (road network, RSU placement, traffic patterns)
+  5.2 Baseline comparisons (Always-Local, Always-RSU, Least-Loaded, Random)
+  5.3 Experiment 1: Deadline miss rate vs number of vehicles (scalability)
+  5.4 Experiment 2: Energy savings vs single-agent DQN
+  5.5 Experiment 3: RSU failure recovery time (adaptive replanning)
+  5.6 Experiment 4: Rush hour vs off-peak performance
+  5.7 Ablation: MAPPO vs PPO vs DQN
+
+Chapter 6: Discussion
+  → Sustainability impact: energy reduction across vehicle fleet + RSU infrastructure
+  → Safety implications: guarantee on hard deadline tasks
+  → Scalability analysis: from 5 vehicles to 100 vehicles
+
+Chapter 7: Conclusion
+  → Summary of contributions
+  → Limitations: simulation vs real 5G network
+  → Future work: V2V cooperative offloading, GNN-MARL, hardware deployment
+```
+
+---
+
+### 📐 Student Time Estimate — AV Edge Computing Focus
+
+| Phase | Task | Time |
+|---|---|---|
+| **Week 1** | Read 5 papers on V2X edge computing + MEC | 5–7 hours reading |
+| **Week 1** | Build `AutonomousVehicleEdgeEnv` (use skeleton above) | 3–5 hours coding |
+| **Week 2** | Train DQN baseline + PPO single vehicle | 2 hours (mostly waiting) |
+| **Week 2** | Add RSU failure scenario (flip a load to 1.0) | 1 hour coding |
+| **Week 3** | Extend to MAPPO (5 vehicles) | 4–6 hours coding |
+| **Week 3–4** | Run experiments, collect results | 3–5 hours |
+| **Week 4–5** | Write up results + analysis | Thesis writing phase |
+| **Total** | **Full working prototype to thesis-ready results** | **~3–4 weeks** |
+
+---
 
 *Generated for: MULTI-AGENT DEEP REINFORCEMENT LEARNING FOR SUSTAINABLE ADAPTIVE SCHEDULING AND REPLANNING IN DYNAMIC ENVIRONMENTS*
-*Domains covered: Project Management (Top 1) | Cloud Computing (Top 2) | Edge Computing (Top 3)*
+*Domains covered: Project Management (Top 1) | Cloud Computing (Top 2) | Edge Computing (Top 3) | AV/V2X Specialization*
